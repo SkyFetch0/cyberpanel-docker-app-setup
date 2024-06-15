@@ -1,0 +1,2 @@
+enablegzip 1
+docroot $VH_ROOT/html/

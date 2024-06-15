@@ -1,0 +1,100 @@
+docroot $VH_ROOT/html/
+enablegzip 1
+
+context / {
+    allowbrowse 1
+    location $DOC_ROOT/
+
+    rewrite  {
+        rules rewritefile .htaccess
+        unknownkeywords rewritefile .htaccess
+    }
+}
+
+expires  {
+    enableexpires 1
+}
+
+index  {
+    indexfiles index.php
+    autoindex 0
+    useserver 0
+}
+
+errorpage 404 {
+    url /error404.html
+}
+
+errorlog $VH_ROOT/logs/error.log {
+    loglevel DEBUG
+    rollingsize 10M
+    useserver 1
+}
+
+accesslog $VH_ROOT/logs/access.log {
+    compressarchive 0
+    logreferer 1
+    keepdays 30
+    rollingsize 10M
+    loguseragent 1
+    useserver 0
+}
+
+rewrite  {
+    enable 1
+    loglevel 0
+}
+
+hotlinkctrl  {
+    suffixes gif,  jpeg,  jpg
+    allowedhosts 
+    allowdirectaccess 1
+    enablehotlinkctrl 0
+    onlyself 1
+}
+
+accesscontrol  {
+    deny 
+    allow *
+}
+
+realm SampleProtectedArea {
+
+    userdb  {
+        cachetimeout 60
+        maxcachesize 200
+        location conf/vhosts/$VH_NAME/htpasswd
+    }
+
+    groupdb  {
+        cachetimeout 60
+        maxcachesize 200
+        location conf/vhosts/$VH_NAME/htgroup
+    }
+}
+
+general  {
+    enablecontextac 0
+}
+
+scripthandler  {
+    add lsapi:cyberpanel php
+}
+
+extprocessor cyberpanel {
+    type lsapi
+    address UDS://tmp/lshttpd/cyberpanel.sock
+    maxconns 10
+    env LSAPI_CHILDREN=10
+    inittimeout 600
+    retrytimeout 0
+    persistconn 1
+    pckeepalivetimeout 1
+    respbuffer 0
+    autostart 1
+    path /usr/local/lsws/lsphp82/bin/lsphp
+    memsoftlimit 2047M
+    memhardlimit 2047M
+    procsoftlimit 400
+    prochardlimit 500
+}
